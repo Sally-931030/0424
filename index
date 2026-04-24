@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>金權政治資料平台</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: "Noto Sans TC", sans-serif;
+    background: #0d0d0d;
+    color: #f5f5f5;
+}
+
+/* 金權色系 */
+:root {
+    --gold: #d4af37;
+    --dark: #111;
+    --card: #1a1a1a;
+}
+
+/* HERO */
+.hero {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9)),
+                url("https://images.unsplash.com/photo-1507679799987-c73779587ccf");
+    background-size: cover;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 3rem;
+    color: var(--gold);
+}
+
+.hero p {
+    max-width: 600px;
+    margin: 20px 0;
+    opacity: 0.8;
+}
+
+/* 搜尋 */
+.search-box {
+    display: flex;
+    gap: 10px;
+}
+
+input {
+    padding: 12px;
+    border: none;
+    width: 250px;
+}
+
+button {
+    padding: 12px 20px;
+    background: var(--gold);
+    border: none;
+    cursor: pointer;
+}
+
+/* 範例查詢 */
+.examples {
+    margin-top: 20px;
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.examples span {
+    margin: 0 8px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* Editor Picks */
+.section {
+    padding: 60px 10%;
+}
+
+.cards {
+    display: flex;
+    gap: 20px;
+}
+
+.card {
+    background: var(--card);
+    padding: 20px;
+    flex: 1;
+    border-left: 3px solid var(--gold);
+}
+
+/* Results Page */
+#results {
+    display: none;
+    padding: 40px 10%;
+}
+
+.result-item {
+    background: var(--card);
+    margin-bottom: 20px;
+    padding: 20px;
+    border-left: 3px solid var(--gold);
+}
+
+.summary {
+    margin-bottom: 20px;
+    color: var(--gold);
+}
+
+/* 排序 */
+.sort {
+    margin-bottom: 20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- Landing Page -->
+<div id="landing">
+    <div class="hero">
+        <h1>誰在操控權力？</h1>
+        <p>
+            在民主制度之下，金錢如何影響政治決策？
+            這個平台讓你看見資本與權力之間的真實關係。
+        </p>
+
+        <div class="search-box">
+            <input id="searchInput" placeholder="搜尋企業、政治人物...">
+            <button onclick="search()">搜尋</button>
+        </div>
+
+        <div class="examples">
+            範例查詢：
+            <span onclick="fill('建設公司')">建設公司</span>
+            <span onclick="fill('政治獻金')">政治獻金</span>
+            <span onclick="fill('能源產業')">能源產業</span>
+        </div>
+    </div>
+
+    <!-- Editor Picks -->
+    <div class="section">
+        <h2 style="color:var(--gold)">編輯精選案例</h2>
+        <div class="cards">
+            <div class="card">
+                <h3>某財團與選舉資金</h3>
+                <p>揭露企業如何透過政治獻金影響政策。</p>
+            </div>
+            <div class="card">
+                <h3>都市開發與利益交換</h3>
+                <p>建設案背後的政商網絡。</p>
+            </div>
+            <div class="card">
+                <h3>能源政策轉向</h3>
+                <p>誰在推動關鍵能源決策？</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Page -->
+<div id="results">
+    <button onclick="back()">← 返回</button>
+
+    <h2>搜尋結果</h2>
+
+    <div class="summary">
+        共找到 <span id="count"></span> 筆資料
+    </div>
+
+    <div class="sort">
+        排序：
+        <select onchange="sortResults(this.value)">
+            <option value="default">預設</option>
+            <option value="money">金額高→低</option>
+        </select>
+    </div>
+
+    <div id="list"></div>
+</div>
+
+<script>
+const data = [
+    {name:"建設公司A", money:5000, desc:"與都市更新計畫相關"},
+    {name:"能源集團B", money:8000, desc:"影響能源政策"},
+    {name:"企業C", money:3000, desc:"政治獻金紀錄"},
+];
+
+let currentData = [...data];
+
+function fill(text){
+    document.getElementById("searchInput").value = text;
+}
+
+function search(){
+    const keyword = document.getElementById("searchInput").value;
+
+    currentData = data.filter(d => d.name.includes(keyword));
+
+    document.getElementById("landing").style.display = "none";
+    document.getElementById("results").style.display = "block";
+
+    render();
+}
+
+function render(){
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+
+    document.getElementById("count").innerText = currentData.length;
+
+    currentData.forEach(d=>{
+        list.innerHTML += `
+        <div class="result-item">
+            <h3>${d.name}</h3>
+            <p>${d.desc}</p>
+            <p>金額：${d.money}</p>
+        </div>
+        `;
+    });
+}
+
+function sortResults(type){
+    if(type === "money"){
+        currentData.sort((a,b)=>b.money-a.money);
+    }
+    render();
+}
+
+function back(){
+    document.getElementById("landing").style.display = "block";
+    document.getElementById("results").style.display = "none";
+}
+</script>
+
+</body>
+</html>
